@@ -1,52 +1,41 @@
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import voice1 from '../Audios/town-10169.mp3'
-import voice2 from '../Audios/in-the-forest-2-21402.mp3'
-import {Player} from 'react-native-audio-player'
-import { Feather, FontAwesome5 } from '@expo/vector-icons'
-export default function HomeScreen() {
-    const voiceNotes = [
-        { id: 1, title: 'Hello There', audioPath: voice1 },
-    ];
-    const playAudio=(audioPath)=>{
-        const player =new Player(audioPath);
-        player.play();
+import { Audio } from 'expo-av'
+import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons'
+import AudioControl from './AudioControl';
+
+export default function HomeScreen({route}) {
+    
+    const {recordingData}= route.params || {};
+
+    const PlayRecording = async(sound)=>{
+        if (sound) {
+            try {
+                await sound.plaAsync();
+            } catch (error) {
+                console.error('Failed to play recording', error);
+            }
+            
+        }
+    }
+    const deleteRecording = (index) => {
+        const updatedAudioList = audioList.filter((_, i) => i !== index);
+        setAudioList(updatedAudioList);
     }
     return (
+        
         <View style={styles.container}>
-            <View style={styles.headerBox}>
-                <Text style={styles.header}>Recordings</Text>
-                <View style={styles.searchBox}>
-                    <Feather
-                        name='search'
-                        size={24}
-                        color='black'
-                        style={styles.searchIcon} />
-
-                </View>
-                
-            </View>
-
+            <Text>Recorded Files</Text>
             <FlatList
-                data={voiceNotes}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => (
-                    <View style={styles.AudioBox}>
-                        <Pressable
-                        style={styles.btnPlay}
-                        onPress={()=>playAudio(item.audioPath)}
-                        >
-                            <FontAwesome5
-                            name='play'
-                            size={24}
-                            color='black'
-                            style={styles.play}/>
-                         
-                        </Pressable>
-                        <Text style={styles.audioDescr}>{item.title}</Text>
-                    </View>
-                )}
-            />
+            data={recordingData}
+            keyExtractor={(item)=> item.uri}
+            renderItem={({item})=>(
+                <AudioControl
+                key={index}
+                playRecording={()=>playRecording}
+                deleteRecording={()=> deleteRecording(index)}/>
+            )}/>
+
         </View>
     )
 }
@@ -54,71 +43,37 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
         backgroundColor: '#DCDCDC'
     },
-    headerBox: {
-        flexDirection: 'row',
-        justifyContent: 'center'
-
-    },
-    searchBox:{
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 100,
-        backgroundColor: '#FFF',
-        borderRadius: 20,
-        width: '15%',
-        height: 40,
-        marginTop: 10,
-        marginLeft: 80
-    },
-    searchIcon:{
-        alignItems: 'center'      
-
-    },
-    header: {
-        fontFamily: 'pacifico',
-        fontSize: 26,
-        fontWeight: 'bold',
-        fontStyle: 'italic',
-        alignSelf: 'center',
-        padding: 20
-    },
-    AudioBox: {
-        backgroundColor: '#FFF',
+    audiosContent: {
+        backgroundColor: 'black',
+        marginTop: 20,
+        height: 50,
+        borderRadius: 10,
         padding: 5,
         justifyContent: 'center',
-        borderRadius: 10,
-        height: 70,
-        width: '95%',
-        alignItems: 'center',
-        padding: 40,
-        paddingBottom: 20,
-        marginTop: 40,
-        marginLeft: 10
+        marginRight: 15,
+        flexDirection: 'row',
+        backgroundColor: '#FFF'
     },
-    btnPlay:{
-        backgroundColor: '#D3D3D3',
-        alignItems: 'center',
-        marginRight: 260,
-        height: 40,
-        width: '20%',
-        borderRadius: 100
+    audioIcon: {
+        marginRight: 220
 
     },
-    play:{
-        alignItems: 'center'
-        
-        
-    },
-    audioDescr: {
-        fontSize: 18,
-        color: 'black',
+    AudioName: {
+        right: 170,
+        fontSize: 20,
         fontWeight: 'bold',
         fontFamily: 'pacifico',
-        textAlign: 'center', 
-       
+        fontStyle: 'italic'
     },
+    playIcon: {
+        right: 120
+    },
+    deleteIcon: {
+        right: 80
 
-
+    }
 })
